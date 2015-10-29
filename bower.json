@@ -1,0 +1,16 @@
+{
+  "name": "color-editor",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-generics": "^0.6.1",
+    "purescript-halogen": "^0.5.4",
+    "purescript-halogen-css": "~0.1.1",
+    "purescript-halogen-menu": "beckyconning/purescript-halogen-menu-1#ready/initial",
+    "purescript-webstorage": "flipstone/purescript-webstorage#8c5145299fe638230cf742e8eb7d87f482d05445"
+  }
+}
