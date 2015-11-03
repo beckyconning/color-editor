@@ -37,15 +37,21 @@ instance monoidKeyboardState :: Monoid KeyboardState where
   mempty = KeyboardState Nothing
 
 foreign import data KEYBOARD :: !
-
 foreign import addEventListenerImpl :: forall ev eff a . Fn3 String (ev -> Eff (keyboard :: KEYBOARD | eff) a) DOM.Document (Eff (keyboard :: KEYBOARD | eff) Unit)
 
 hole :: forall a. a
 hole = Unsafe.Coerce.unsafeCoerce ""
 
-type KeyboardEvent =
+type KeyboardEventR =
   { keyCode :: Int
+  , ctrlKey :: Boolean
+  , altKey :: Boolean
+  , metaKey :: Boolean
   }
+
+foreign import data KeyboardEvent :: *
+foreign import readKeyboardEvent :: KeyboardEvent -> KeyboardEventR
+foreign import keyboardEventPreventDefault :: forall eff. KeyboardEvent -> Eff (keyboard :: KEYBOARD | eff) Unit
 
 onKeyDown
   :: forall eff
@@ -64,14 +70,17 @@ onKeyUp document fn = runFn3 addEventListenerImpl "keyup" fn document
 onKeyCombo
   :: forall eff
    . DOM.Document
-  -> (KeyboardState -> Eff (ref :: REF, keyboard :: KEYBOARD | eff) Unit)
-  -> Eff (ref :: REF, keyboard :: KEYBOARD | eff) Unit
+  -> (KeyboardState -> Eff (keyboard :: KEYBOARD, ref :: REF | eff) Unit)
+  -> Eff (keyboard :: KEYBOARD, ref :: REF | eff) Unit
 onKeyCombo doc listener = do
   ref <- newRef mempty
   onKeyUp doc \e -> do
+    keyboardEventPreventDefault e
     readRef ref >>= listener
     modifyRef ref (const mempty)
-  onKeyDown doc \e -> modifyRef ref (<> (keyCodeToKeyboardState e.keyCode))
+  onKeyDown doc \e -> do
+    keyboardEventPreventDefault e
+    modifyRef ref (<> (keyCodeToKeyboardState (readKeyboardEvent e).keyCode))
 
 type KeyboardEffects eff =
   ( keyboard :: KEYBOARD
