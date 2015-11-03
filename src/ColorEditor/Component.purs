@@ -2,8 +2,6 @@ module ColorEditor.Component where
 
 import Prelude
 
-import Debug.Trace
-
 import Browser.WebStorage (WebStorage())
 import Control.Apply ((*>))
 import Control.Monad.Aff.AVar (AVAR())
@@ -48,7 +46,7 @@ import Color.Component (colorComponent)
 
 import ColorEditorMenu.Model (colorEditorMenu)
 
-type X eff = Aff (keyboard :: KEYBOARD, ref :: REF, webStorage :: WebStorage, avar :: AVAR, dom :: DOM.DOM | eff)
+type X eff = Aff (keyboard :: KEYBOARD, ref :: REF, webStorage :: WebStorage, avar :: AVAR, dom :: DOM.DOM| eff)
 
 type ColorEditorMenu g = MenuP (ColorQuery Unit) g
 type ColorEditorMenuQuery = MenuQueryP (ColorQuery Unit)
@@ -107,19 +105,21 @@ colorEditorComponent = parentComponent' render eval peek
   menuClass :: ClassName
   menuClass = className "ce-menu"
 
-  hole :: forall a. a
-  hole = Unsafe.Coerce.unsafeCoerce ""
-
   eval :: Natural ColorEditorQuery (ParentDSL ColorEditor (ColorEditorChild (X eff)) ColorEditorQuery ColorEditorChildQuery (X eff) ColorEditorChildSlotAddress)
   eval (DismissAll next) =
     query' cpColorEditorMenu ColorEditorMenuSlotAddress (left $ action DismissSubmenu) *> pure next
   eval (Init next) = do
     document <- liftH $ liftEff' $ DOM.window >>= DOM.document <#> DOM.htmlDocumentToDocument
-    liftH $ subscribe $ eventSource (onKeyCombo document) \(KeyboardState keyboardState) ->
-      case keyboardState of
-        (Just keyCombo) | keyCombo == (combo [meta, letter s]) -> pure saveColor
-        (Just keyCombo) | keyCombo == (combo [meta, letter l]) -> pure loadColor
-        _ -> pure dismissSubmenu
+    liftH $ subscribe $ eventSource (onKeyUp document) \e ->
+      let i = readKeyboardEvent e in
+      if i.ctrlKey && i.keyCode == 83 then do
+        keyboardEventPreventDefault e
+        pure saveColor
+      else if i.ctrlKey && i.keyCode == 76 then do
+        keyboardEventPreventDefault e
+        pure loadColor
+      else
+        pure dismissSubmenu
     pure next
 
   dismissSubmenu = ChildF (Left ColorEditorMenuSlotAddress) (left $ left $ DismissSubmenu unit)
@@ -140,4 +140,3 @@ colorEditorComponent = parentComponent' render eval peek
 
   peekSubmenu :: forall a. (ChildF SubmenuSlotAddress (SubmenuQuery (ColorQuery Unit))) a -> ParentDSL ColorEditor (ColorEditorChild (X eff)) ColorEditorQuery ColorEditorChildQuery (X eff) ColorEditorChildSlotAddress Unit
   peekSubmenu (ChildF _ (SelectSubmenuItem q _)) = query' cpColor ColorSlotAddress q *> pure unit
-
