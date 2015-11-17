@@ -22,17 +22,17 @@ import qualified Halogen.HTML.Properties.Indexed as P
 import qualified Halogen.HTML.Events.Handler as EH
 
 import Halogen.Menu.Component (MenuQueryP(), MenuP(), SubmenuSlotAddress(), menuComponent)
-import Halogen.Menu.Submenu.Query (SubmenuQuery(..))
-import Halogen.Menu.Query (MenuQuery(..))
+import Halogen.Menu.Submenu.Component.Query (SubmenuQuery(..))
+import Halogen.Menu.Component.Query (MenuQuery(..))
 
-import ColorEditor.Model (ColorEditor())
-import ColorEditor.Query (ColorEditorQuery(..))
+import ColorEditor.Component.State (ColorEditor())
+import ColorEditor.Component.Query (ColorEditorQuery(..))
 
-import Color.Model (Color(), white)
-import Color.Query (ColorQuery())
+import Color.Component.State (Color(), white)
+import Color.Component.Query (ColorQuery())
 import Color.Component (colorComponent)
 
-import ColorEditorMenu.Model (colorEditorMenu)
+import ColorEditorMenu.Component.State (colorEditorMenu)
 
 type ColorEditorMenu g = MenuP (ColorQuery Unit) g
 type ColorEditorMenuQuery = MenuQueryP (ColorQuery Unit)

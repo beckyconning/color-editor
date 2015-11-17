@@ -17,11 +17,11 @@ import qualified Halogen.HTML.Indexed as H
 import qualified Halogen.HTML.Properties.Indexed as P
 import qualified Halogen.HTML.CSS.Indexed as C
 
-import Halogen.Menu.Submenu.Model (Submenu(), SubmenuItem())
-import Halogen.Menu.Submenu.Query (SubmenuQuery(..))
+import Halogen.Menu.Submenu.Component.State (Submenu(), SubmenuItem())
+import Halogen.Menu.Submenu.Component.Query (SubmenuQuery(..))
 
-import Color.Model (Color(), save, load, fromString, toCssColor, increaseRed, increaseGreen, increaseBlue, decreaseRed, decreaseGreen, decreaseBlue)
-import Color.Query (ColorQuery(..))
+import Color.Component.State (Color(), save, load, fromString, toCssColor, increaseRed, increaseGreen, increaseBlue, decreaseRed, decreaseGreen, decreaseBlue)
+import Color.Component.Query (ColorQuery(..))
 
 colorComponent :: forall g eff. (MonadEff (webStorage :: WebStorage | eff) g) => Component Color ColorQuery g
 colorComponent = component render eval

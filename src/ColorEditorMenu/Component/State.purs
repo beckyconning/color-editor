@@ -1,9 +1,9 @@
-module ColorEditorMenu.Model where
+module ColorEditorMenu.Component.State where
 
 import Prelude
 
-import Color.Query (ColorQuery(..))
-import Halogen.Menu.Model (Menu(), makeMenu)
+import Color.Component.Query (ColorQuery(..))
+import Halogen.Menu.Component.State (Menu(), makeMenu)
 
 colorEditorMenu :: Menu (ColorQuery Unit)
 colorEditorMenu = makeMenu

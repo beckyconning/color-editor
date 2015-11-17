@@ -1,4 +1,4 @@
-module Color.Query where
+module Color.Component.Query where
 
 data ColorQuery a = IncreaseRed a
                   | DecreaseRed a

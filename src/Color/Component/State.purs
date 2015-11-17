@@ -1,4 +1,4 @@
-module Color.Model where
+module Color.Component.State where
 
 import Prelude
 

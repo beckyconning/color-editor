@@ -1,4 +1,4 @@
-module ColorEditor.Query where
+module ColorEditor.Component.Query where
 
 import Data.Const (Const())
 import Data.Void (Void())
