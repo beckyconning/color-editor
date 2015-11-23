@@ -4,23 +4,19 @@ import Prelude
 
 import Control.Apply ((*>))
 import Control.Monad.Eff.Class (MonadEff)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (maybe)
 import Data.NaturalTransformation (Natural())
 import Browser.WebStorage (WebStorage())
 
 import qualified Css.Font (color) as Css
 
 import Halogen
-import Halogen.HTML.Core (ClassName(), className, prop, propName, attrName)
-import qualified Halogen.HTML.Events.Indexed as E
+import Halogen.HTML.Core (ClassName(), className)
 import qualified Halogen.HTML.Indexed as H
 import qualified Halogen.HTML.Properties.Indexed as P
 import qualified Halogen.HTML.CSS.Indexed as C
 
-import Halogen.Menu.Submenu.Component.State (Submenu(), SubmenuItem())
-import Halogen.Menu.Submenu.Component.Query (SubmenuQuery(..))
-
-import Color.Component.State (Color(), save, load, fromString, toCssColor, increaseRed, increaseGreen, increaseBlue, decreaseRed, decreaseGreen, decreaseBlue)
+import Color.Component.State (Color(), save, load, toCssColor, increaseRed, increaseGreen, increaseBlue, decreaseRed, decreaseGreen, decreaseBlue)
 import Color.Component.Query (ColorQuery(..))
 
 colorComponent :: forall g eff. (MonadEff (webStorage :: WebStorage | eff) g) => Component Color ColorQuery g

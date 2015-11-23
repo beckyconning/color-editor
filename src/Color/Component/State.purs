@@ -3,15 +3,13 @@ module Color.Component.State where
 import Prelude
 
 import Browser.WebStorage (WebStorage(), localStorage, setItem, getItem)
-import Control.Apply ((*>))
 import Control.Monad.Eff (Eff())
-import Css.Stylesheet (Css())
 import Data.Array ((!!), drop)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(), fromMaybe)
 import Data.String.Regex (match, noFlags, regex)
 import Data.Traversable (sequence)
 
-import qualified Css.Color (Color(..), rgb, white, black, clamp) as Css
+import qualified Css.Color (Color(), rgb, clamp) as Css
 import qualified Data.Int (fromString) as I
 
 data Color = RGB Int Int Int

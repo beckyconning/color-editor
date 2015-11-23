@@ -5,13 +5,11 @@ import Prelude
 import Browser.WebStorage (WebStorage())
 import Control.Apply ((*>))
 import Control.Monad.Eff.Class (MonadEff)
-import Data.Const (Const(..))
-import Data.Either (Either(..))
+import Data.Either (Either())
 import Data.Functor (($>))
 import Data.Functor.Coproduct (Coproduct(), coproduct, left)
 import Data.Generic (Generic, gEq, gCompare)
 import Data.NaturalTransformation (Natural())
-import Data.Void (Void(), absurd)
 
 import Halogen
 import Halogen.HTML.Core (ClassName(), className)

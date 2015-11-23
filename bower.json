@@ -7,10 +7,9 @@
     "output"
   ],
   "dependencies": {
-    "purescript-generics": "^0.6.1",
     "purescript-halogen": "^0.5.4",
     "purescript-halogen-css": "~0.1.1",
-    "purescript-halogen-menu": "beckyconning/purescript-halogen-menu#43f0a8a28c4d342c83245852b6fd19ae2ef2fc59",
+    "purescript-halogen-menu": "beckyconning/purescript-halogen-menu#c3d4681fe21334630f2e75f2f22e83f97f18e44d",
     "purescript-webstorage": "flipstone/purescript-webstorage#8c5145299fe638230cf742e8eb7d87f482d05445"
   }
 }
