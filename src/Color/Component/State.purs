@@ -5,38 +5,43 @@ import Prelude
 import Browser.WebStorage (WebStorage(), localStorage, setItem, getItem)
 import Control.Monad.Eff (Eff())
 import Data.Array ((!!), drop)
+import Data.Either (fromRight)
 import Data.Maybe (Maybe(), fromMaybe)
 import Data.String.Regex (match, noFlags, regex)
 import Data.Traversable (sequence)
+import Partial.Unsafe (unsafePartial)
 
-import qualified Css.Color (Color(), rgb, clamp) as Css
-import qualified Data.Int (fromString) as I
+import CSS.Color (Color(), rgb) as Css
+import Data.Int (fromString) as I
 
 data Color = RGB Int Int Int
 
 instance showColor :: Show Color where
-  show (RGB r g b) = "rgb(" ++ show r ++ "," ++ show g ++ "," ++ show b ++ ")"
+  show (RGB r g b) = "rgb(" <> show r <> "," <> show g <> "," <> show b <> ")"
+
+clamp' :: Int -> Int
+clamp' = clamp 0 255
 
 increment :: Int
 increment = 15
 
 increaseRed :: Color -> Color
-increaseRed (RGB r g b) = RGB (Css.clamp (r + increment)) g b
+increaseRed (RGB r g b) = RGB (clamp' (r + increment)) g b
 
 decreaseRed :: Color -> Color
-decreaseRed (RGB r g b) = RGB (Css.clamp (r - increment)) g b
+decreaseRed (RGB r g b) = RGB (clamp' (r - increment)) g b
 
 increaseGreen :: Color -> Color
-increaseGreen (RGB r g b) = RGB r (Css.clamp (g + increment)) b
+increaseGreen (RGB r g b) = RGB r (clamp' (g + increment)) b
 
 decreaseGreen :: Color -> Color
-decreaseGreen (RGB r g b) = RGB r (Css.clamp (g - increment)) b
+decreaseGreen (RGB r g b) = RGB r (clamp' (g - increment)) b
 
 increaseBlue :: Color -> Color
-increaseBlue (RGB r g b) = RGB r g (Css.clamp (b + increment))
+increaseBlue (RGB r g b) = RGB r g (clamp' (b + increment))
 
 decreaseBlue :: Color -> Color
-decreaseBlue (RGB r g b) = RGB r g (Css.clamp (b - increment))
+decreaseBlue (RGB r g b) = RGB r g (clamp' (b - increment))
 
 average :: Color -> Int
 average (RGB r g b) = (r + g + b) / 3
@@ -57,7 +62,7 @@ toCssColor (RGB r g b) = Css.rgb r g b
 fromString :: String -> Maybe Color
 fromString string = RGB <$> (intArray !! 0) <*> (intArray !! 1) <*> (intArray !! 2)
   where
-  expression = regex """rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)""" noFlags
+  expression = unsafePartial (fromRight (regex """rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)""" noFlags))
 
   stringArray :: Array String
   stringArray = drop 1 $ fromMaybe [] $ sequence $ fromMaybe [] $ match expression string
@@ -69,5 +74,5 @@ save :: forall eff. Color -> Eff (webStorage :: WebStorage | eff) Unit
 save = setItem localStorage "color" <<< show
 
 load :: forall eff. Eff (webStorage :: WebStorage | eff) (Maybe Color)
-load = getItem localStorage "color" >>= ((>>= fromString) >>> pure)
+load = getItem localStorage "color" >>= ((_ >>= fromString) >>> pure)
 
