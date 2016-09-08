@@ -9,8 +9,8 @@ import Data.Maybe (Maybe(), fromMaybe)
 import Data.String.Regex (match, noFlags, regex)
 import Data.Traversable (sequence)
 
-import qualified Css.Color (Color(), rgb, clamp) as Css
-import qualified Data.Int (fromString) as I
+import Css.Color (Color(), rgb, clamp) as Css
+import Data.Int (fromString) as I
 
 data Color = RGB Int Int Int
 

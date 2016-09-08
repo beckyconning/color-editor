@@ -8,13 +8,13 @@ import Data.Maybe (maybe)
 import Data.NaturalTransformation (Natural())
 import Browser.WebStorage (WebStorage())
 
-import qualified Css.Font (color) as Css
+import Css.Font (color) as Css
 
 import Halogen
 import Halogen.HTML.Core (ClassName(), className)
-import qualified Halogen.HTML.Indexed as H
-import qualified Halogen.HTML.Properties.Indexed as P
-import qualified Halogen.HTML.CSS.Indexed as C
+import Halogen.HTML.Indexed as H
+import Halogen.HTML.Properties.Indexed as P
+import Halogen.HTML.CSS.Indexed as C
 
 import Color.Component.State (Color(), save, load, toCssColor, increaseRed, increaseGreen, increaseBlue, decreaseRed, decreaseGreen, decreaseBlue)
 import Color.Component.Query (ColorQuery(..))

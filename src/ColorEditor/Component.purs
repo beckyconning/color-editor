@@ -14,10 +14,10 @@ import Data.NaturalTransformation (Natural())
 import Halogen
 import Halogen.HTML.Core (ClassName(), className)
 import Halogen.Component.ChildPath (ChildPath(), cpL, cpR)
-import qualified Halogen.HTML.Events.Indexed as E
-import qualified Halogen.HTML.Indexed as H
-import qualified Halogen.HTML.Properties.Indexed as P
-import qualified Halogen.HTML.Events.Handler as EH
+import Halogen.HTML.Events.Indexed as E
+import Halogen.HTML.Indexed as H
+import Halogen.HTML.Properties.Indexed as P
+import Halogen.HTML.Events.Handler as EH
 
 import Halogen.Menu.Component (MenuQueryP(), MenuP(), SubmenuSlotAddress(), menuComponent)
 import Halogen.Menu.Submenu.Component.Query (SubmenuQuery(..))
