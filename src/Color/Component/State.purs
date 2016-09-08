@@ -5,9 +5,11 @@ import Prelude
 import Browser.WebStorage (WebStorage(), localStorage, setItem, getItem)
 import Control.Monad.Eff (Eff())
 import Data.Array ((!!), drop)
+import Data.Either (fromRight)
 import Data.Maybe (Maybe(), fromMaybe)
 import Data.String.Regex (match, noFlags, regex)
 import Data.Traversable (sequence)
+import Partial.Unsafe (unsafePartial)
 
 import Css.Color (Color(), rgb, clamp) as Css
 import Data.Int (fromString) as I
@@ -57,7 +59,7 @@ toCssColor (RGB r g b) = Css.rgb r g b
 fromString :: String -> Maybe Color
 fromString string = RGB <$> (intArray !! 0) <*> (intArray !! 1) <*> (intArray !! 2)
   where
-  expression = regex """rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)""" noFlags
+  expression = unsafePartial (fromRight (regex """rgb\((\d{1,3}),(\d{1,3}),(\d{1,3})\)""" noFlags))
 
   stringArray :: Array String
   stringArray = drop 1 $ fromMaybe [] $ sequence $ fromMaybe [] $ match expression string
