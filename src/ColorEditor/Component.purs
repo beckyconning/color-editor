@@ -4,12 +4,13 @@ import Prelude
 
 import Browser.WebStorage (WebStorage())
 import Control.Apply ((*>))
-import Control.Monad.Eff.Class (MonadEff)
+import Control.Monad.Aff (Aff)
+import Control.Monad.Eff.Class (class MonadEff)
 import Data.Either (Either())
 import Data.Functor (($>))
 import Data.Functor.Coproduct (Coproduct(), coproduct, left)
-import Data.Generic (Generic, gEq, gCompare)
-import Data.NaturalTransformation (Natural())
+import Data.Generic (class Generic, gEq, gCompare)
+import Data.Maybe (Maybe(..))
 
 import Halogen
 import Halogen.HTML.Core (ClassName(), className)
@@ -50,7 +51,7 @@ type ColorEditorChild g = Either (ColorEditorMenu g) Color
 type ColorEditorChildQuery = Coproduct ColorEditorMenuQuery ColorQuery
 type ColorEditorChildSlotAddressAddress = Either ColorEditorMenuSlotAddressAddress ColorSlotAddressAddress
 
-type ColorEditorP g = InstalledState ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress
+type ColorEditorP g = ParentState ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress
 type ColorEditorQueryP = Coproduct ColorEditorQuery (ChildF ColorEditorChildSlotAddressAddress ColorEditorChildQuery)
 
 cpColorEditorMenu :: forall g. ChildPath (ColorEditorMenu g) (ColorEditorChild g) ColorEditorMenuQuery ColorEditorChildQuery ColorEditorMenuSlotAddressAddress ColorEditorChildSlotAddressAddress
@@ -59,21 +60,23 @@ cpColorEditorMenu = cpL
 cpColor :: forall g. ChildPath Color (ColorEditorChild g) ColorQuery ColorEditorChildQuery ColorSlotAddressAddress ColorEditorChildSlotAddressAddress
 cpColor = cpR
 
-colorEditorComponent :: forall g eff. (MonadEff (webStorage :: WebStorage | eff) g, Functor g) => Component (ColorEditorP g) ColorEditorQueryP g
-colorEditorComponent = parentComponent' render eval peek
+type ComponentEffects eff = HalogenEffects (webStorage :: WebStorage | eff)
+
+colorEditorComponent :: forall eff. Component (ColorEditorP (Aff (ComponentEffects eff))) ColorEditorQueryP (Aff (ComponentEffects eff))
+colorEditorComponent = parentComponent { render, eval, peek : Just peek }
   where
 
-  render :: ColorEditor -> ParentHTML (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress
+  render :: ColorEditor -> ParentHTML (ColorEditorChild (Aff (ComponentEffects eff))) ColorEditorQuery ColorEditorChildQuery (Aff (ComponentEffects eff)) ColorEditorChildSlotAddressAddress
   render _ =
       H.div
-        [ E.onClick (\_ -> EH.preventDefault *> EH.stopPropagation $> action DismissAll)
+        [ E.onClick (\_ -> EH.preventDefault *> EH.stopPropagation $> Just (action DismissAll))
         , P.class_ colorEditorClass
         ]
         [ H.div
             [ P.class_ menuClass ]
             [ H.slot' cpColorEditorMenu ColorEditorMenuSlotAddressAddress \_ ->
                 { component: menuComponent
-                , initialState: installedState colorEditorMenu
+                , initialState: parentState colorEditorMenu
                 }
             ]
         , H.slot' cpColor ColorSlotAddressAddress \_ ->
@@ -88,16 +91,16 @@ colorEditorComponent = parentComponent' render eval peek
   menuClass :: ClassName
   menuClass = className "ce-menu"
 
-  eval :: Natural ColorEditorQuery (ParentDSL ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress)
+  eval :: ColorEditorQuery ~> (ParentDSL ColorEditor (ColorEditorChild (Aff (ComponentEffects eff))) ColorEditorQuery ColorEditorChildQuery (Aff (ComponentEffects eff)) ColorEditorChildSlotAddressAddress)
   eval (DismissAll next) =
     query' cpColorEditorMenu ColorEditorMenuSlotAddressAddress (left $ action DismissSubmenu) *> pure next
 
-  peek :: forall a. (ChildF ColorEditorChildSlotAddressAddress ColorEditorChildQuery) a -> ParentDSL ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress Unit
+  peek :: forall a. (ChildF ColorEditorChildSlotAddressAddress ColorEditorChildQuery) a -> ParentDSL ColorEditor (ColorEditorChild (Aff (ComponentEffects eff))) ColorEditorQuery ColorEditorChildQuery (Aff (ComponentEffects eff)) ColorEditorChildSlotAddressAddress Unit
   peek (ChildF _ q) = coproduct peekMenu (const (pure unit)) q
 
-  peekMenu :: forall a. ColorEditorMenuQuery a -> ParentDSL ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress Unit
+  peekMenu :: forall a. ColorEditorMenuQuery a -> ParentDSL ColorEditor (ColorEditorChild (Aff (ComponentEffects eff))) ColorEditorQuery ColorEditorChildQuery (Aff (ComponentEffects eff)) ColorEditorChildSlotAddressAddress Unit
   peekMenu = coproduct (const (pure unit)) peekSubmenu
 
-  peekSubmenu :: forall a. (ChildF SubmenuSlotAddress (SubmenuQuery (ColorQuery Unit))) a -> ParentDSL ColorEditor (ColorEditorChild g) ColorEditorQuery ColorEditorChildQuery g ColorEditorChildSlotAddressAddress Unit
+  peekSubmenu :: forall a. (ChildF SubmenuSlotAddress (SubmenuQuery (ColorQuery Unit))) a -> ParentDSL ColorEditor (ColorEditorChild (Aff (ComponentEffects eff))) ColorEditorQuery ColorEditorChildQuery (Aff (ComponentEffects eff)) ColorEditorChildSlotAddressAddress Unit
   peekSubmenu (ChildF _ (SelectSubmenuItem q _)) = query' cpColor ColorSlotAddressAddress q *> pure unit
 
